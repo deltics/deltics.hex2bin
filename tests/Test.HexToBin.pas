@@ -1,5 +1,5 @@
 
-{$i deltics.hex.inc}
+{$i deltics.inc}
 
   unit Test.HexToBin;
 
@@ -27,7 +27,7 @@ implementation
 
   uses
     Deltics.Exceptions,
-    Deltics.Hex;
+    Deltics.Hex2Bin;
 
 
 { TBin2HexTests ---------------------------------------------------------------------------------- }
@@ -38,12 +38,13 @@ implementation
     STR: String = '0a0b0c0dfeff1234';
   var
     expectedBuf: Int64;
-    buf: Pointer;
+    buf: Int64;
   begin
     expectedBuf := $0a0b0c0dfeff1234;
-    buf         := HexToBin(STR);
 
-    Test('HexToBin(''0a0b0c0dfeff1234'')').Assert(buf).EqualsBytes(@expectedBuf, sizeof(expectedBuf));
+    HexToBin(STR, @buf);
+
+    Test('HexToBin(''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -53,12 +54,13 @@ implementation
     STR: AnsiString = '0a0b0c0dfeff1234';
   var
     expectedBuf: Int64;
-    buf: Pointer;
+    buf: Int64;
   begin
     expectedBuf := $0a0b0c0dfeff1234;
-    buf         := HexToBin(STR);
 
-    Test('HexToBin(ANSI''0a0b0c0dfeff1234'')').Assert(buf).EqualsBytes(@expectedBuf, sizeof(expectedBuf));
+    HexToBin(STR, @buf);
+
+    Test('HexToBin(ANSI''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -68,12 +70,13 @@ implementation
     STR: WideString = '0a0b0c0dfeff1234';
   var
     expectedBuf: Int64;
-    buf: Pointer;
+    buf: Int64;
   begin
     expectedBuf := $0a0b0c0dfeff1234;
-    buf         := HexToBin(STR);
 
-    Test('HexToBin(WIDE''0a0b0c0dfeff1234'')').Assert(buf).EqualsBytes(@expectedBuf, sizeof(expectedBuf));
+    HexToBin(STR, @buf);
+
+    Test('HexToBin(WIDE''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -83,12 +86,13 @@ implementation
     STR: String = '0A0B0C0DFEFF1234';
   var
     expectedBuf: Int64;
-    buf: Pointer;
+    buf: Int64;
   begin
     expectedBuf := $0a0b0c0dfeff1234;
-    buf         := HexToBin(STR);
 
-    Test('HexToBin(''0a0b0c0dfeff1234'')').Assert(buf).EqualsBytes(@expectedBuf, sizeof(expectedBuf));
+    HexToBin(STR, @buf);
+
+    Test('HexToBin(''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -98,12 +102,13 @@ implementation
     STR: AnsiString = '0A0B0C0DFEFF1234';
   var
     expectedBuf: Int64;
-    buf: Pointer;
+    buf: Int64;
   begin
     expectedBuf := $0a0b0c0dfeff1234;
-    buf         := HexToBin(STR);
 
-    Test('HexToBin(ANSI''0a0b0c0dfeff1234'')').Assert(buf).EqualsBytes(@expectedBuf, sizeof(expectedBuf));
+    HexToBin(STR, @buf);
+
+    Test('HexToBin(ANSI''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -113,21 +118,24 @@ implementation
     STR: WideString = '0A0B0C0DFEFF1234';
   var
     expectedBuf: Int64;
-    buf: Pointer;
+    buf: Int64;
   begin
     expectedBuf := $0a0b0c0dfeff1234;
-    buf         := HexToBin(STR);
 
-    Test('HexToBin(WIDE''0a0b0c0dfeff1234'')').Assert(buf).EqualsBytes(@expectedBuf, sizeof(expectedBuf));
+    HexToBin(STR, @buf);
+
+    Test('HexToBin(WIDE''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
   procedure THexToBinTests.HexToBinThrowsExceptionIfStringContainsNonHexadecimalCharacters;
+  var
+    buf: Byte;
   begin
-    Test.RaisesException(EArgumentException);
+    Test.Raises(EArgumentException);
 
-    HexToBin('0G');
+    HexToBin('0G', @buf);
   end;
 
 

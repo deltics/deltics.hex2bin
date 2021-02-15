@@ -1,5 +1,5 @@
 
-{$i deltics.hex.inc}
+{$i deltics.inc}
 
   unit Test.BinToHex;
 
@@ -15,9 +15,6 @@ interface
       procedure BinToHexReturningStringEncodesAsHexCorrectly;
       procedure BinToHexYieldingWideStringEncodesAsHexCorrectly;
       procedure BinToHexYieldingAnsiStringEncodesAsHexCorrectly;
-      procedure BinToHexOfIntegerReturningStringEncodesAsHexCorrectly;
-      procedure BinToHexOfIntegerYieldingWideStringEncodesAsHexCorrectly;
-      procedure BinToHexOfIntegerYieldingAnsiStringEncodesAsHexCorrectly;
     end;
 
 
@@ -25,7 +22,7 @@ interface
 implementation
 
   uses
-    Deltics.Hex;
+    Deltics.Hex2Bin;
 
 
 { TBin2HexTests ---------------------------------------------------------------------------------- }
@@ -37,7 +34,7 @@ implementation
     s: String;
   begin
     buf := $0a0b0c0dfeff1234;
-    s   := BinToHex(@buf, sizeof(BUF));
+    s   := BinToHex(@buf, sizeof(buf));
 
     Test('BinToHex(@$0a0b0c0dfeff1234)').Assert(s).Equals('0a0b0c0dfeff1234');
   end;
@@ -50,7 +47,7 @@ implementation
     s: AnsiString;
   begin
     buf := $0a0b0c0dfeff1234;
-    BinToHex(@buf, sizeof(BUF), s);
+    BinToHex(@buf, sizeof(buf), s);
 
     Test('BinToHex(@$0a0b0c0dfeff1234, var ansistring)').Assert(s).Equals('0a0b0c0dfeff1234');
   end;
@@ -63,44 +60,10 @@ implementation
     s: WideString;
   begin
     buf := $0a0b0c0dfeff1234;
-    BinToHex(@buf, sizeof(BUF), s);
+    BinToHex(@buf, sizeof(buf), s);
 
     Test('BinToHex(@$0a0b0c0dfeff1234, var widestring)').Assert(s).Equals('0a0b0c0dfeff1234');
   end;
-
-
-
-
-
-
-  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  procedure TBinToHexTests.BinToHexOfIntegerReturningStringEncodesAsHexCorrectly;
-  begin
-    Test('BinToHex(0x1234abcd)').Assert(BinToHex($1234abcd)).Equals('1234abcd');
-  end;
-
-
-  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  procedure TBinToHexTests.BinToHexOfIntegerYieldingAnsiStringEncodesAsHexCorrectly;
-  var
-    s: AnsiString;
-  begin
-    BinToHex($1234abcd, s);
-
-    Test('BinToHex(0x1234abcd, var ansistring)').Assert(s).Equals('1234abcd');
-  end;
-
-
-  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  procedure TBinToHexTests.BinToHexOfIntegerYieldingWideStringEncodesAsHexCorrectly;
-  var
-    s: WideString;
-  begin
-    BinToHex($1234abcd, s);
-
-    Test('BinToHex(0x1234abcd, var widestring)').Assert(s).Equals('1234abcd');
-  end;
-
 
 
 

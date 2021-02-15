@@ -7,7 +7,7 @@
 
 uses
   Deltics.Smoketest,
-  Deltics.Hex in '..\src\Deltics.Hex.pas',
+  Deltics.Hex2Bin in '..\src\Deltics.Hex2Bin.pas',
   Test.BinToHex in 'Test.BinToHex.pas',
   Test.HexToBin in 'Test.HexToBin.pas';
 
