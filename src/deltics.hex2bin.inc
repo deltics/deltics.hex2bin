@@ -3,7 +3,7 @@
 
 {$debuginfo OFF}
 
-{$ifdef debug_DelticsHex}
+{$ifdef debug_DelticsHex2Bin}
   {$undef InlineMethods}
   {$debuginfo ON}
 {$endif}
