@@ -53,9 +53,7 @@ interface
   function BinToHex(const aBuffer: Pointer; const aNumBytes: Integer): String; overload;
   procedure BinToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: AnsiString); overload;
   procedure BinToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: UnicodeString); overload;
-{$ifdef UNICODE}
   procedure BinToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: WideString); overload;
-{$endif}
   function BinToHexA(const aBuffer: Pointer; const aNumBytes: Integer): AnsiString;
   function BinToHexW(const aBuffer: Pointer; const aNumBytes: Integer): UnicodeString;
 
@@ -170,14 +168,12 @@ implementation
   end;
 
 
-{$ifdef UNICODE}
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
   procedure BinToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: WideString);
   begin
     SetLength(aString, aNumBytes * 2);
     BinToHex(aBuffer, aNumBytes, PWideChar(aString));
   end;
-{$endif}
 
 
 
