@@ -16,7 +16,7 @@
   "dependencies":[
     "deltics.inc:1.3.0",
     "deltics.exceptions:1.1.0",
-    "deltics.strings:1.4.0-beta.9"
+    "deltics.strings:1.4.0"
   ],
   "source":{
       "files":[
