@@ -14,6 +14,7 @@ interface
     THexToBinTests = class(TTest)
       procedure HexToBinFromStringDecodesLowercaseCorrectly;
       procedure HexToBinFromAnsiStringDecodesLowercaseCorrectly;
+      procedure HexToBinFromUtf8String;
       procedure HexToBinFromWideStringDecodesLowercaseCorrectly;
       procedure HexToBinFromStringDecodesUppercaseCorrectly;
       procedure HexToBinFromAnsiStringDecodesUppercaseCorrectly;
@@ -91,6 +92,22 @@ implementation
     expectedBuf := $0a0b0c0dfeff1234;
 
     Hex2Bin.ToBin(STR, @buf);
+
+    Test('Hex2Bin.ToBin(''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
+  end;
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  procedure THexToBinTests.HexToBinFromUtf8String;
+  const
+    STR: Utf8String = '0A0B0C0DFEFF1234';
+  var
+    expectedBuf: Int64;
+    buf: Int64;
+  begin
+    expectedBuf := $0a0b0c0dfeff1234;
+
+    Hex2Bin.ToBinUtf8(STR, @buf);
 
     Test('Hex2Bin.ToBin(''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;

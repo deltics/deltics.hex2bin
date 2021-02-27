@@ -15,6 +15,7 @@ interface
       procedure BinToHexWithNoCaseSpecified;
       procedure BinToHexWithUpperCaseSpecified;
       procedure BinToHexAnsiVarParam;
+      procedure BinToHexUtf8VarParam;
       procedure BinToHexWideVarParam;
     end;
 
@@ -68,6 +69,18 @@ implementation
 
 
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  procedure TBinToHexTests.BinToHexUtf8VarParam;
+  var
+    buf: Int64;
+    s: utf8String;
+  begin
+    buf := $0a0b0c0dfeff1234;
+    Hex2Bin.ToHexUtf8(@buf, sizeof(buf), s);
+
+    Test('Hex2Bin.ToHex(@$0a0b0c0dfeff1234, var utf8string)').AssertUtf8(s).Equals('0a0b0c0dfeff1234');
+  end;
+
+
   procedure TBinToHexTests.BinToHexWideVarParam;
   var
     buf: Int64;
