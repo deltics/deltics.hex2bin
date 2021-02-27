@@ -72,7 +72,7 @@ implementation
   procedure TBinToHexTests.BinToHexUtf8VarParam;
   var
     buf: Int64;
-    s: utf8String;
+    s: Utf8String;
   begin
     buf := $0a0b0c0dfeff1234;
     Hex2Bin.ToHexUtf8(@buf, sizeof(buf), s);
