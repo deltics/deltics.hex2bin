@@ -42,9 +42,9 @@ implementation
   begin
     expectedBuf := $0a0b0c0dfeff1234;
 
-    HexToBin(STR, @buf);
+    Hex2Bin.ToBin(STR, @buf);
 
-    Test('HexToBin(''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
+    Test('Hex2Bin.ToBin(''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -58,9 +58,9 @@ implementation
   begin
     expectedBuf := $0a0b0c0dfeff1234;
 
-    HexToBin(STR, @buf);
+    Hex2Bin.ToBin(STR, @buf);
 
-    Test('HexToBin(ANSI''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
+    Test('Hex2Bin.ToBin(ANSI''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -74,9 +74,9 @@ implementation
   begin
     expectedBuf := $0a0b0c0dfeff1234;
 
-    HexToBin(STR, @buf);
+    Hex2Bin.ToBin(STR, @buf);
 
-    Test('HexToBin(WIDE''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
+    Test('Hex2Bin.ToBin(WIDE''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -90,9 +90,9 @@ implementation
   begin
     expectedBuf := $0a0b0c0dfeff1234;
 
-    HexToBin(STR, @buf);
+    Hex2Bin.ToBin(STR, @buf);
 
-    Test('HexToBin(''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
+    Test('Hex2Bin.ToBin(''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -106,9 +106,9 @@ implementation
   begin
     expectedBuf := $0a0b0c0dfeff1234;
 
-    HexToBin(STR, @buf);
+    Hex2Bin.ToBin(STR, @buf);
 
-    Test('HexToBin(ANSI''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
+    Test('Hex2Bin.ToBin(ANSI''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -122,9 +122,9 @@ implementation
   begin
     expectedBuf := $0a0b0c0dfeff1234;
 
-    HexToBin(STR, @buf);
+    Hex2Bin.ToBin(STR, @buf);
 
-    Test('HexToBin(WIDE''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
+    Test('Hex2Bin.ToBin(WIDE''0a0b0c0dfeff1234'')').Assert(buf).Equals(expectedBuf);
   end;
 
 
@@ -135,7 +135,7 @@ implementation
   begin
     Test.Raises(EArgumentException);
 
-    HexToBin('0G', @buf);
+    Hex2Bin.ToBin('0G', @buf);
   end;
 
 

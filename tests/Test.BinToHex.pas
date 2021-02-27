@@ -12,9 +12,10 @@ interface
 
   type
     TBinToHexTests = class(TTest)
-      procedure BinToHexReturningStringEncodesAsHexCorrectly;
-      procedure BinToHexYieldingWideStringEncodesAsHexCorrectly;
-      procedure BinToHexYieldingAnsiStringEncodesAsHexCorrectly;
+      procedure BinToHexWithNoCaseSpecified;
+      procedure BinToHexWithUpperCaseSpecified;
+      procedure BinToHexAnsiVarParam;
+      procedure BinToHexWideVarParam;
     end;
 
 
@@ -28,41 +29,54 @@ implementation
 { TBin2HexTests ---------------------------------------------------------------------------------- }
 
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  procedure TBinToHexTests.BinToHexReturningStringEncodesAsHexCorrectly;
+  procedure TBinToHexTests.BinToHexWithNoCaseSpecified;
   var
     buf: Int64;
     s: String;
   begin
     buf := $0a0b0c0dfeff1234;
-    s   := BinToHex(@buf, sizeof(buf));
+    s   := Hex2Bin.ToHex(@buf, sizeof(buf));
 
-    Test('BinToHex(@$0a0b0c0dfeff1234)').Assert(s).Equals('0a0b0c0dfeff1234');
+    Test('Hex2Bin.ToHex(@$0a0b0c0dfeff1234)').Assert(s).Equals('0a0b0c0dfeff1234');
   end;
 
 
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  procedure TBinToHexTests.BinToHexYieldingAnsiStringEncodesAsHexCorrectly;
+  procedure TBinToHexTests.BinToHexWithUpperCaseSpecified;
+  var
+    buf: Int64;
+    s: String;
+  begin
+    buf := $0a0b0c0dfeff1234;
+    s   := Hex2Bin.ToHex(@buf, sizeof(buf), hexUppercase);
+
+    Test('Hex2Bin.ToHex(@$0a0b0c0dfeff1234), hexUppercase').Assert(s).Equals('0A0B0C0DFEFF1234');
+  end;
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  procedure TBinToHexTests.BinToHexAnsiVarParam;
   var
     buf: Int64;
     s: AnsiString;
   begin
     buf := $0a0b0c0dfeff1234;
-    BinToHex(@buf, sizeof(buf), s);
+    Hex2Bin.ToHex(@buf, sizeof(buf), s);
 
-    Test('BinToHex(@$0a0b0c0dfeff1234, var ansistring)').Assert(s).Equals('0a0b0c0dfeff1234');
+    Test('Hex2Bin.ToHex(@$0a0b0c0dfeff1234, var ansistring)').Assert(s).Equals('0a0b0c0dfeff1234');
   end;
 
 
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  procedure TBinToHexTests.BinToHexYieldingWideStringEncodesAsHexCorrectly;
+  procedure TBinToHexTests.BinToHexWideVarParam;
   var
     buf: Int64;
     s: WideString;
   begin
     buf := $0a0b0c0dfeff1234;
-    BinToHex(@buf, sizeof(buf), s);
+    Hex2Bin.ToHex(@buf, sizeof(buf), s);
 
-    Test('BinToHex(@$0a0b0c0dfeff1234, var widestring)').Assert(s).Equals('0a0b0c0dfeff1234');
+    Test('Hex2Bin.ToHex(@$0a0b0c0dfeff1234, var widestring)').Assert(s).Equals('0a0b0c0dfeff1234');
   end;
 
 
