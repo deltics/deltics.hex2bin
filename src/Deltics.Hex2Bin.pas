@@ -52,18 +52,30 @@ interface
 
     Hex2Bin = class
     public
-      class procedure ToHex(const aBuffer: Pointer; const aNumBytes: Integer; aOutBuffer: PAnsiChar; const aCase: THexCase = hexLowercase); overload;
-      class procedure ToHex(const aBuffer: Pointer; const aNumBytes: Integer; aOutBuffer: PWideChar; const aCase: THexCase = hexLowercase); overload;
+      class procedure ToHex(const aBuffer: Pointer; const aNumBytes: Integer; const aOutBuffer: PAnsiChar; const aCase: THexCase = hexLowercase); overload;
+      class procedure ToHex(const aBuffer: Pointer; const aNumBytes: Integer; const aOutBuffer: PUtf8Char; const aCase: THexCase = hexLowercase); overload;
+      class procedure ToHex(const aBuffer: Pointer; const aNumBytes: Integer; const aOutBuffer: PWideChar; const aCase: THexCase = hexLowercase); overload;
 
-      class function ToHex(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase = hexLowercase): String; overload;
       class procedure ToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: AnsiString; const aCase: THexCase = hexLowercase); overload;
       class procedure ToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: UnicodeString; const aCase: THexCase = hexLowercase); overload;
+    {$ifdef UNICODE}
+      class procedure ToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: Utf8String; const aCase: THexCase = hexLowercase); overload;
+    {$endif}
       class procedure ToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: WideString; const aCase: THexCase = hexLowercase); overload;
+
+      class function ToHex(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase = hexLowercase): String; overload;
       class function ToHexA(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase = hexLowercase): AnsiString;
       class function ToHexW(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase = hexLowercase): UnicodeString;
 
+      class procedure ToHexUtf8(const aBuffer: Pointer; const aNumBytes: Integer; var aString: Utf8String; const aCase: THexCase = hexLowercase); overload;
+      class function ToHexUtf8(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase = hexLowercase): Utf8String; overload;
+
       class procedure ToBin(const aString: AnsiString; const aOutBuffer: Pointer); overload;
       class procedure ToBin(const aString: UnicodeString; const aOutBuffer: Pointer); overload;
+    {$ifdef UNICODE}
+      class procedure ToBin(const aString: Utf8String; const aOutBuffer: Pointer); overload;
+    {$endif}
+      class procedure ToBinUtf8(const aString: Utf8String; const aOutBuffer: Pointer);
     end;
 
 
@@ -77,7 +89,7 @@ implementation
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
   class procedure Hex2Bin.ToHex(const aBuffer: Pointer;
                                 const aNumBytes: Integer;
-                                      aOutBuffer: PAnsiChar;
+                                const aOutBuffer: PAnsiChar;
                                 const aCase: THexCase);
   const
     DIGITS: array[FALSE..TRUE] of AnsiString = ('0123456789abcdef', '0123456789ABCDEF');
@@ -107,9 +119,38 @@ implementation
 
 
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class procedure Hex2Bin.ToHex(const aBuffer: Pointer; const aNumBytes: Integer; const aOutBuffer: PUtf8Char; const aCase: THexCase);
+  const
+    DIGITS: array[FALSE..TRUE] of Utf8String = ('0123456789abcdef', '0123456789ABCDEF');
+  var
+    i: Integer;
+    pBuf: PByte;
+    pOut: PUtf8Char;
+  begin
+    pBuf := aBuffer;
+  {$ifdef 64BIT}
+    pOut := PUtf8Char(Int64(aOutBuffer) + (aNumBytes * 2) - 1);
+  {$else}
+    pOut := PUtf8Char(Integer(aOutBuffer) + (aNumBytes * 2) - 1);
+  {$endif}
+
+    for i := aNumBytes downto 1 do
+    begin
+      pOut^ := DIGITS[aCase = hexUppercase][(pBuf^ and $0f) + 1];
+      Dec(pOut);
+
+      pOut^ := DIGITS[aCase = hexUppercase][(pBuf^ and $f0) shr 4 + 1];
+      Dec(pOut);
+
+      Inc(pBuf);
+    end;
+  end;
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
   class procedure Hex2Bin.ToHex(const aBuffer: Pointer;
                                 const aNumBytes: Integer;
-                                      aOutBuffer: PWideChar;
+                                const aOutBuffer: PWideChar;
                                 const aCase: THexCase);
   const
     DIGITS: array[FALSE..TRUE] of UnicodeString = ('0123456789abcdef', '0123456789ABCDEF');
@@ -146,21 +187,6 @@ implementation
 
 
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  class function Hex2Bin.ToHexA(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase): AnsiString;
-  begin
-    ToHex(aBuffer, aNumBytes, result, aCase);
-  end;
-
-
-  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  class function Hex2Bin.ToHexW(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase): UnicodeString;
-  begin
-    ToHex(aBuffer, aNumBytes, result, aCase);
-  end;
-
-
-
-  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
   class procedure Hex2Bin.ToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: AnsiString; const aCase: THexCase);
   begin
     SetLength(aString, aNumBytes * 2);
@@ -176,11 +202,50 @@ implementation
   end;
 
 
+{$ifdef UNICODE}
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class procedure Hex2Bin.ToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: Utf8String; const aCase: THexCase);
+  begin
+    SetLength(aString, aNumBytes * 2);
+    ToHex(aBuffer, aNumBytes, PUtf8Char(aString), aCase);
+  end;
+{$endif}
+
+
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
   class procedure Hex2Bin.ToHex(const aBuffer: Pointer; const aNumBytes: Integer; var aString: WideString; const aCase: THexCase);
   begin
     SetLength(aString, aNumBytes * 2);
     ToHex(aBuffer, aNumBytes, PWideChar(aString), aCase);
+  end;
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class function Hex2Bin.ToHexA(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase): AnsiString;
+  begin
+    ToHex(aBuffer, aNumBytes, result, aCase);
+  end;
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class function Hex2Bin.ToHexW(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase): UnicodeString;
+  begin
+    ToHex(aBuffer, aNumBytes, result, aCase);
+  end;
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class procedure Hex2Bin.ToHexUtf8(const aBuffer: Pointer; const aNumBytes: Integer; var aString: Utf8String; const aCase: THexCase);
+  begin
+    SetLength(aString, aNumBytes * 2);
+    ToHex(aBuffer, aNumBytes, Putf8Char(aString), aCase);
+  end;
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class function Hex2Bin.ToHexUtf8(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase): Utf8String;
+  begin
+    ToHexUtf8(aBuffer, aNumBytes, result, aCase);
   end;
 
 
@@ -259,6 +324,44 @@ implementation
   end;
 
 
+{$ifdef UNICODE}
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class procedure Hex2Bin.ToBin(const aString: Utf8String;
+                                const aOutBuffer: Pointer);
+  begin
+    ToBinUtf8(aString, aOutBuffer);
+  end;
+{$endif}
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class procedure Hex2Bin.ToBinUtf8(const aString: Utf8String;
+                                    const aOutBuffer: Pointer);
+  var
+    i: Integer;
+    pCharHi: PUtf8Char;
+    pCharLo: PUtf8Char;
+    pOut: PByte;
+  begin
+    pOut := PByte(aOutBuffer);
+    pCharHi := PUtf8Char(@aString[Length(aString)]);
+    pCharLo := pCharHi;
+    Dec(pCharHi);
+
+    for i := 1 to Length(aString) div 2 do
+    begin
+      if NOT (pCharHi^ in HEX_DIGITS) then
+        raise EArgumentException.CreateFmt('Invalid character ''%s'' in hex string ''%s''', [pCharHi^, aString]);
+
+      if NOT (pCharLo^ in HEX_DIGITS) then
+        raise EArgumentException.CreateFmt('Invalid character ''%s'' in hex string ''%s''', [pCharLo^, aString]);
+
+      pOut^ := Byte((HEX_ORDS[pCharHi^] shl 4) or HEX_ORDS[pCharLo^]);
+      Inc(pOut);
+      Dec(pCharHi, 2);
+      Dec(pCharLo, 2);
+    end;
+  end;
 
 
 
