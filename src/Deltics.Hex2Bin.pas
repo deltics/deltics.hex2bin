@@ -44,14 +44,12 @@
 interface
 
   uses
-    Deltics.Unicode;
+    Deltics.StringTypes;
 
+
+  {$i deltics.stringtypes.aliases.inc}
 
   type
-    PUtf8Char     = Deltics.Unicode.PUtf8Char;
-    UnicodeString = Deltics.Unicode.UnicodeString;
-    Utf8String    = Deltics.Unicode.Utf8String;
-
     THexCase = (hexLowercase, hexUppercase);
 
     Hex2Bin = class
