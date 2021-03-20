@@ -72,6 +72,9 @@ interface
       class procedure ToHexUtf8(const aBuffer: Pointer; const aNumBytes: Integer; var aString: Utf8String; const aCase: THexCase = hexLowercase); overload;
       class function ToHexUtf8(const aBuffer: Pointer; const aNumBytes: Integer; const aCase: THexCase = hexLowercase): Utf8String; overload;
 
+      class procedure ToBin(const aBuffer: PAnsiChar; const aNumChars: Integer; const aOutBuffer: Pointer); overload;
+      class procedure ToBin(const aBuffer: PUtf8Char; const aNumChars: Integer; const aOutBuffer: Pointer); overload;
+      class procedure ToBin(const aBuffer: PWideChar; const aNumChars: Integer; const aOutBuffer: Pointer); overload;
       class procedure ToBin(const aString: AnsiString; const aOutBuffer: Pointer); overload;
       class procedure ToBin(const aString: UnicodeString; const aOutBuffer: Pointer); overload;
     {$ifdef UNICODE}
@@ -84,7 +87,8 @@ interface
 implementation
 
   uses
-    Deltics.Exceptions;
+    Deltics.Exceptions,
+    Deltics.Memory;
 
 
 
@@ -258,7 +262,7 @@ implementation
 
 
   const
-    HEX_DIGITS  = ['0'..'9', 'A'..'F', 'a'..'f'];
+    HEX_DIGITS  : set of AnsiChar = ['0'..'9', 'A'..'F', 'a'..'f'];
     HEX_ORDS    : array['0'..'f'] of SmallInt =
     ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,-1,-1,-1,-1,-1,-1,
      -1,10,11,12,13,14,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -267,7 +271,8 @@ implementation
 
 
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  class procedure Hex2Bin.ToBin(const aString: AnsiString;
+  class procedure Hex2Bin.ToBin(const aBuffer: PAnsiChar;
+                                const aNumChars: Integer;
                                 const aOutBuffer: Pointer);
   var
     i: Integer;
@@ -276,17 +281,17 @@ implementation
     pOut: PByte;
   begin
     pOut := PByte(aOutBuffer);
-    pCharHi := PAnsiChar(@aString[Length(aString)]);
+    pCharHi := PAnsiChar(Memory.Offset(aBuffer, aNumChars - 1));
     pCharLo := pCharHi;
     Dec(pCharHi);
 
-    for i := 1 to Length(aString) div 2 do
+    for i := 1 to aNumChars div 2 do
     begin
       if NOT (pCharHi^ in HEX_DIGITS) then
-        raise EArgumentException.CreateFmt('Invalid character ''%s'' in hex string ''%s''', [pCharHi^, aString]);
+        raise EArgumentException.CreateFmt('Invalid character ''%s''', [pCharHi^]);
 
       if NOT (pCharLo^ in HEX_DIGITS) then
-        raise EArgumentException.CreateFmt('Invalid character ''%s'' in hex string ''%s''', [pCharLo^, aString]);
+        raise EArgumentException.CreateFmt('Invalid character ''%s''', [pCharLo^]);
 
       pOut^ := Byte((HEX_ORDS[pCharHi^] shl 4) or HEX_ORDS[pCharLo^]);
       Inc(pOut);
@@ -297,7 +302,17 @@ implementation
 
 
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
-  class procedure Hex2Bin.ToBin(const aString: UnicodeString;
+  class procedure Hex2Bin.ToBin(const aBuffer: PUtf8Char;
+                                const aNumChars: Integer;
+                                const aOutBuffer: Pointer);
+  begin
+    ToBin(PAnsiChar(aBuffer), aNumChars, aOutBuffer);
+  end;
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class procedure Hex2Bin.ToBin(const aBuffer: PWideChar;
+                                const aNumChars: Integer;
                                 const aOutBuffer: Pointer);
   var
     i: Integer;
@@ -306,17 +321,17 @@ implementation
     pOut: PByte;
   begin
     pOut := PByte(aOutBuffer);
-    pCharHi := PWideChar(@aString[Length(aString)]);
+    pCharHi := PWideChar(Memory.Offset(aBuffer, (aNumChars - 1) * 2));
     pCharLo := pCharHi;
     Dec(pCharHi);
 
-    for i := 1 to Length(aString) div 2 do
+    for i := 1 to aNumChars div 2 do
     begin
       if (Word(pCharHi^) > $0100) or NOT (AnsiChar(pCharHi^) in HEX_DIGITS) then
-        raise EArgumentException.CreateFmt('Invalid character ''%s'' in hex string ''%s''', [pCharHi^, aString]);
+        raise EArgumentException.CreateFmt('Invalid character ''%s''', [pCharHi^]);
 
       if (Word(pCharLo^) > $0100) or NOT (AnsiChar(pCharLo^) in HEX_DIGITS) then
-        raise EArgumentException.CreateFmt('Invalid character ''%s'' in hex string ''%s''', [pCharLo^, aString]);
+        raise EArgumentException.CreateFmt('Invalid character ''%s''', [pCharLo^]);
 
       pOut^ := Byte((HEX_ORDS[AnsiChar(pCharHi^)] shl 4) or HEX_ORDS[AnsiChar(pCharLo^)]);
       Inc(pOut);
@@ -326,12 +341,28 @@ implementation
   end;
 
 
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class procedure Hex2Bin.ToBin(const aString: AnsiString;
+                                const aOutBuffer: Pointer);
+  begin
+    ToBin(PAnsiChar(aString), Length(aString), aOutBuffer);
+  end;
+
+
+  { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
+  class procedure Hex2Bin.ToBin(const aString: UnicodeString;
+                                const aOutBuffer: Pointer);
+  begin
+    ToBin(PWideChar(aString), Length(aString), aOutBuffer);
+  end;
+
+
 {$ifdef UNICODE}
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
   class procedure Hex2Bin.ToBin(const aString: Utf8String;
                                 const aOutBuffer: Pointer);
   begin
-    ToBinUtf8(aString, aOutBuffer);
+    ToBin(PAnsiChar(aString), Length(aString), aOutBuffer);
   end;
 {$endif}
 
@@ -339,30 +370,8 @@ implementation
   { - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - }
   class procedure Hex2Bin.ToBinUtf8(const aString: Utf8String;
                                     const aOutBuffer: Pointer);
-  var
-    i: Integer;
-    pCharHi: PUtf8Char;
-    pCharLo: PUtf8Char;
-    pOut: PByte;
   begin
-    pOut := PByte(aOutBuffer);
-    pCharHi := PUtf8Char(@aString[Length(aString)]);
-    pCharLo := pCharHi;
-    Dec(pCharHi);
-
-    for i := 1 to Length(aString) div 2 do
-    begin
-      if NOT (pCharHi^ in HEX_DIGITS) then
-        raise EArgumentException.CreateFmt('Invalid character ''%s'' in hex string ''%s''', [pCharHi^, aString]);
-
-      if NOT (pCharLo^ in HEX_DIGITS) then
-        raise EArgumentException.CreateFmt('Invalid character ''%s'' in hex string ''%s''', [pCharLo^, aString]);
-
-      pOut^ := Byte((HEX_ORDS[pCharHi^] shl 4) or HEX_ORDS[pCharLo^]);
-      Inc(pOut);
-      Dec(pCharHi, 2);
-      Dec(pCharLo, 2);
-    end;
+    ToBin(PAnsiChar(aString), Length(aString), aOutBuffer);
   end;
 
 
